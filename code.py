@@ -18,7 +18,7 @@ if 'answers' not in st.session_state:
 if 'quiz_completed' not in st.session_state:
     st.session_state.quiz_completed = False
 
-# Datos de las preguntas
+# Datos del cuestionario
 questions = [
     {
         "question": "1. ¿Qué tipo de objetivo principal tiene tu análisis?",
@@ -85,4 +85,59 @@ questions = [
         "question": "7. Para variables continuas, ¿los datos son normales?",
         "options": [
             "Sí, distribución normal",
-            "No, distribución no
+            "No, distribución no normal",
+            "No estoy seguro"
+        ],
+        "correct": 0,
+        "explanation": "✅ Correcto! La correlación de Pearson requiere normalidad; la de Spearman no."
+    }
+]
+
+# Función para mostrar una pregunta
+def display_question(q_index):
+    q = questions[q_index]
+    st.write(f"### {q['question']}")
+    selected = st.radio("Selecciona una opción:", q["options"], key=f"q{q_index}")
+    return selected
+
+# Lógica del quiz
+if not st.session_state.quiz_completed:
+    question_index = st.session_state.current_question
+
+    selected_option = display_question(question_index)
+
+    if st.button("Siguiente"):
+        st.session_state.answers.append(selected_option)
+
+        # Verificar si es correcta
+        if selected_option == questions[question_index]["options"][questions[question_index]["correct"]]:
+            st.session_state.score += 1
+            st.success(questions[question_index]["explanation"])
+        else:
+            st.error("❌ Respuesta incorrecta.")
+
+        st.session_state.current_question += 1
+
+        if st.session_state.current_question >= len(questions):
+            st.session_state.quiz_completed = True
+        st.experimental_rerun()
+
+else:
+    st.success("🎉 ¡Has completado el cuestionario!")
+    st.write(f"### Tu puntaje final: **{st.session_state.score} / {len(questions)}**")
+
+    st.write("### Tus respuestas:")
+    df = pd.DataFrame({
+        "Pregunta": [q["question"] for q in questions],
+        "Tu respuesta": st.session_state.answers,
+        "Respuesta correcta": [q["options"][q["correct"]] for q in questions]
+    })
+    st.table(df)
+
+    if st.button("Reiniciar"):
+        st.session_state.current_question = 0
+        st.session_state.score = 0
+        st.session_state.answers = []
+        st.session_state.quiz_completed = False
+        st.experimental_rerun()
+
