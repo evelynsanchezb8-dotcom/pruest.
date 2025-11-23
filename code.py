@@ -41,5 +41,5 @@ questions = [
         "question": "3. ¿Los grupos que comparas son independientes o relacionados?",
         "options": [
             "Independientes (grupos diferentes)",
-            "Relacionados (mismas persona
+            "Relacionados (mismas personas)"
 
